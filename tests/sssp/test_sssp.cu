@@ -419,6 +419,10 @@ cudaError_t RunTests(Info<VertexId, SizeT, Value> *info)
         srand(src_seed);
     }
     if (!quiet_mode) printf("Using traversal mode %s\n", traversal_mode.c_str());
+    
+    json_spirit::mArray source_list;
+    if (src_type == "list")
+        source_list = info->info["source_list"].get_array();
     for (int iter = 0; iter < iterations; ++iter)
     {
         if (src_type == "random2")
@@ -429,6 +433,16 @@ cudaError_t RunTests(Info<VertexId, SizeT, Value> *info)
                 src = rand() % graph -> nodes;
                 if (graph -> row_offsets[src] != graph -> row_offsets[src+1])
                     src_valid = true;
+            }
+        } else if (src_type == "list")
+        {
+            if (source_list.size() == 0) 
+            {
+                if (!quiet_mode)
+                    printf("No source list found. Use 0 as source.\n");
+                src = 0;
+            } else {
+                src = source_list[iter].get_int();
             }
         }
 
